@@ -1,4 +1,4 @@
-const API_BASE = "https://YOUR-RENDER-SERVICE.onrender.com";
+const API_BASE = "https://clinic-system01.onrender.com";
 
 let PAT=null, ENC=null;
 const el=(id)=>document.getElementById(id);
@@ -8,13 +8,19 @@ function setStatus(text, kind="info"){
   s.textContent=text;
 }
 
-async function api(path, opt={}){
-  const res=await fetch(path,{headers:{"Content-Type":"application/json"},...opt});
-  const text=await res.text(); let data=null;
-  try{data=text?JSON.parse(text):null;}catch{data=text;}
-  if(!res.ok) throw new Error(data?.detail || data || "Request failed");
+async function api(path, opt = {}) {
+  const url = path.startsWith("http") ? path : `${API_BASE}${path}`;
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    ...opt,
+  });
+  const text = await res.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!res.ok) throw new Error(data?.detail || data || "Request failed");
   return data;
 }
+
 
 const debounce=(fn,ms)=>{let t=null;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);}};
 
@@ -101,7 +107,7 @@ async function loadSheet(){
 
 function downloadExcel(){
   if(!PAT) return;
-  window.open(`/api/patients/${PAT}/export.xlsx`, "_blank");
+  window.open(`${API_BASE}/api/patients/${PAT}/export.xlsx`, "_blank");
 }
 
 function fill(items){
